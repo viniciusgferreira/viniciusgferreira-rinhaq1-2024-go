@@ -1,28 +1,14 @@
 package data
 
 import (
-	"encoding/json"
-	"errors"
-	"io"
 	"time"
 )
 
 type Transaction struct {
-	Amount      int        `json:"valor"`
-	Type        string     `json:"tipo"`
-	Description string     `json:"descricao"`
-	Date        *time.Time `json:"realizada_em"`
-}
-
-func NewTransaction(r io.Reader) (*Transaction, error) {
-	t := &Transaction{}
-	err := t.FromJSON(r)
-	if err != nil {
-		return nil, errors.New("")
-	}
-	now := time.Now()
-	t.Date = &now
-	return t, nil
+	Amount      int       `json:"valor"`
+	Type        string    `json:"tipo"`
+	Description string    `json:"descricao"`
+	Date        time.Time `json:"realizada_em"`
 }
 
 func (t *Transaction) Validate() bool {
@@ -38,13 +24,4 @@ func (t *Transaction) Validate() bool {
 	}
 
 	return true
-}
-func (t *Transaction) ToJSON(w io.Writer) error {
-	e := json.NewEncoder(w)
-	return e.Encode(t)
-}
-
-func (t *Transaction) FromJSON(r io.Reader) error {
-	e := json.NewDecoder(r)
-	return e.Decode(t)
 }

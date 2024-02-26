@@ -1,41 +1,46 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"github.com/viniciusgferreira/viniciusgferreira-rinhaq1-2024-go/data"
 	"github.com/viniciusgferreira/viniciusgferreira-rinhaq1-2024-go/repositories"
+	"time"
 )
 
 type Service struct {
 	repo *repositories.Repository
 }
 
+var (
+	ErrInsufficientFunds = errors.New("not enough funds or limit")
+)
+
 func New(repo *repositories.Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) CreateTransaction(t *data.Transaction, id uint8) (*data.Balance, error) {
-	var balance *data.Balance
+func (s *Service) CreateTransaction(ctx context.Context, t *data.Transaction, id int) (*data.ResponseTransaction, error) {
+	t.Date = time.Now()
+	var response *data.ResponseTransaction
 	var err error
 	if t.Type == "d" {
-		balance, err = s.repo.Debit(t, id)
+		response, err = s.repo.Debit(ctx, t, id)
 		if err != nil {
-			return nil, errors.New("not enough funds or limit")
+			return nil, ErrInsufficientFunds
 		}
-	} else {
-		balance, err = s.repo.Credit(t, id)
+	} else if t.Type == "c" {
+		response, err = s.repo.Credit(ctx, t, id)
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		return nil, errors.New("wrong type (c,d)")
 	}
-	return balance, nil
-}
-func (s *Service) SufficientFunds(id uint8, amount int) bool {
-	balance := s.repo.FindBalance(id)
-	return amount <= balance.Total+balance.Limit
+	return response, nil
 }
 
-func (s *Service) CreateStatement(id uint8) *data.Client {
-	client := s.repo.CreateStatement(id)
+func (s *Service) CreateStatement(ctx context.Context, id int) *data.Client {
+	client := s.repo.CreateStatement(ctx, id)
 	return client
 }

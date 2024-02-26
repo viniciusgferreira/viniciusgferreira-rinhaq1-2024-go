@@ -17,8 +17,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.4'
-          memory: '128MB'
+          cpus: '0.2'
+          memory: '50MB'
 
   api2:
     <<: *api
@@ -47,8 +47,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.10'
-          memory: '128MB'
+          cpus: '0.1'
+          memory: '30MB'
 
   db: # Banco de dados
     image: postgres
@@ -64,7 +64,7 @@ services:
         - rinhanet
     ports:
       - "5432:5432"
-    command: postgres -c 'max_connections=100' -c 'log_error_verbosity=terse'
+    command: postgres -c 'max_connections=150' -c 'log_error_verbosity=terse' -c 'checkpoint_timeout=800' -c 'max_wal_size=10GB' -c 'effective_cache_size=128MB' -c 'shared_buffers=128MB'
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
@@ -72,8 +72,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.6'
-          memory: '128MB'
+          cpus: '1'
+          memory: '420MB'
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./script.sql:/docker-entrypoint-initdb.d/script.sql

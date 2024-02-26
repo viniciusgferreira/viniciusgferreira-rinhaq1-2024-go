@@ -18,11 +18,11 @@ COMMIT;
 
 CREATE TABLE IF NOT EXISTS transacoes (
     id SERIAL PRIMARY KEY,
-    cliente_id int,
-    valor int,
-    tipo VARCHAR(1),
-    descricao VARCHAR(10),
-    realizada_em TIMESTAMP,
+    cliente_id int NOT NULL,
+    valor int NOT NULL,
+    tipo VARCHAR(1) NOT NULL,
+    descricao VARCHAR(10) NOT NULL,
+    realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 

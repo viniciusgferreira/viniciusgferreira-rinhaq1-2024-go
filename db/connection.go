@@ -1,21 +1,29 @@
 package db
 
 import (
-	"database/sql"
+	"context"
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
 	"log"
 	"time"
 )
 
-func Connect() *sql.DB {
+func Connect() (*pgxpool.Pool, error) {
 	//connStr := "host=localhost port=5432 user=postgres password=postgres dbname=rinhadb sslmode=disable"
 	connStr := "host=rinha-db port=5432 user=postgres password=postgres dbname=rinhadb sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
+	poolCfg, err := pgxpool.ParseConfig(connStr)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
+	}
+
+	poolCfg.MaxConns = 75
+	poolCfg.MinConns = 5
+	db, err := pgxpool.NewWithConfig(context.Background(), poolCfg)
+	if err != nil {
+		return nil, err
 	}
 	for {
-		err = db.Ping()
+		err = db.Ping(context.Background())
 		if err == nil {
 			log.Println("Database connected")
 			break
@@ -24,5 +32,5 @@ func Connect() *sql.DB {
 		log.Println("retrying in 2 seconds")
 		time.Sleep(2 * time.Second)
 	}
-	return db
+	return db, nil
 }
