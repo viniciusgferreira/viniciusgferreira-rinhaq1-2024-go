@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   api1: &api
-    image: viniciusgferreira/rinha-api-q1-2024:latest
+    build: .
     container_name: rinha-api1
     hostname: rinha-api1
     restart: always
